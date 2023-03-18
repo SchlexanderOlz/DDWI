@@ -8,9 +8,17 @@
     <body>
         <h1>DDWI</h1>
 
-        <form id="dropbox">
-            <p>Drag and drop to add new document</p>
-        </form>
+        <div id="actions">
+            <form id="dropbox">
+                <p>Drag and drop to add new document</p>
+            </form>
+
+            <form>
+                <label for="type_name">Add a new group/type for better filtering:</label>
+                <input type="text" id="type_name" name="type_name" required>
+                <button id="type_submit" type="type_submit">Submit</button>
+            </form>
+        </div>
 
         <input type="text" id="search_input" onkeyup="search()" placeholder="Search for names..">
 
@@ -22,4 +30,5 @@
 
     <script src="/script/drag_n_drop.js" type="text/javascript"></script>
     <script src="/script/sort.js" type="text/javascript"></script>
+    <script src="/script/new_type.js" type="text/javascript"></script>
 </html>

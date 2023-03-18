@@ -133,8 +133,10 @@ app.post('/api/finish_upload', (req, res) => {
 })
 
 
-app.post('/api/add_entry', (error, data) => {
-
+app.put('/api/new_type', (req, res) => {
+    const sql = `INSERT INTO type (name) VALUES(?)`
+    documents.run(sql, [req.body.name])
+    res.end()
 })
 
 

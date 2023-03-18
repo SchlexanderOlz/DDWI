@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Form</title>
+    <link href="/style/form.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="form">
+      <h1>Form</h1>
+      <form>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br>
+        <label for="type">Type:</label>
+        <select id="type" name="type" required>
+          <option value="" disabled selected>Select a type</option>
+          <option value="type1">Type 1</option>
+          <option value="type2">Type 2</option>
+          <option value="type3">Type 3</option>
+        </select>
+        <br>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+    <script src="/script/form.js"></script>
+  </body>
+</html>

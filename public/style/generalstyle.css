@@ -70,4 +70,26 @@ body {
 
 .list-head:first-child {
     width: 15%;
-  }
+}
+
+
+
+#dropbox {
+    border: 2px dashed #ccc;
+    width: 15%;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#dropbox p {
+    margin: 0;
+    font-size: 18px;
+    color: #999;
+}
+
+#dropbox.dragover {
+    border-color: #000;
+}

@@ -8,7 +8,7 @@ const document_db_dir = "db/documents.sqlite"
 const upload = multer({ dest: 'temp/' });
 const documents = new sqlite.Database(document_db_dir, (error) => {
     console.log(error)
-    console.log("Couldn't open Database: documents")
+    console.log("[-] Couldn't open Database: documents")
 })
 
 const port = 3900

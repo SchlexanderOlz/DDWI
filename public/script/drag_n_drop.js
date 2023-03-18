@@ -37,6 +37,7 @@ function unhighlight(e) {
 function handleDrop(e) {
   console.log('Hey u dropped this')
   const files = e.dataTransfer.files;
+  console.log(files[0].name)
   // Do something with the dropped files
 
   let formData = new FormData()
@@ -44,9 +45,6 @@ function handleDrop(e) {
 
   fetch('/api/drop', {
     method: 'POST',
-    headers: {
-        'Content-Type': 'multipart/form-data'
-    },
     body: formData
   })
 

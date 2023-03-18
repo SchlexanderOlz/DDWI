@@ -22,5 +22,36 @@ form.addEventListener('submit', (event) => {
   // Reset the form after submission
   form.reset();
   typeSelect.selectedIndex = 0;
+
+  let content = JSON.stringify({
+    name: name,
+    description: description,
+    type: type
+  })
+  
+  fetch('/api/finish_upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: content
+  })
+
   location.href = "/"
 });
+
+
+function update_options() {
+
+  let html_string
+  fetch('/api/get_type_entrys').then(response => {return response.json()}).then(data => {
+    html_string += `<option value="" disabled selected>Select a type</option>`
+    for (entry in data) {
+      html_string += `<option value="${data[entry]['name']}">${data[entry]['name']}</option>`
+      
+    }
+    document.getElementById('type').innerHTML = html_string
+  })
+}
+
+update_options()

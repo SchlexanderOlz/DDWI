@@ -54,8 +54,6 @@ function update_entrys() {
             html_content += '</tr>'
 
         }
-        console.log(html_content)
-
         document.getElementById("list-contents").innerHTML = html_content
     })
 }

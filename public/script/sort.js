@@ -51,11 +51,25 @@ function update_entrys() {
                     html_content += '<td class="list-item">' + data[entry][key] + '</td>'
                 }
             }
-            html_content += '</tr>'
-
+            html_content += '<td class="list-item"><button class="delete-button" onclick="delete_entry(' + data[entry]['id'] + ')"><i class="fa fa-trash"></i></button></td></tr>'
         }
         document.getElementById("list-contents").innerHTML = html_content
     })
+}
+
+function delete_entry(id) {
+
+  const content = {
+    id: id
+  }
+
+  fetch('/api/delete_entry', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(content)
+  }).then(update_entrys())
 }
 
 update_entrys()

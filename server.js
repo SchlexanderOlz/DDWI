@@ -4,6 +4,7 @@ const fs = require("fs")
 const sqlite = require("sqlite3")
 const multer = require('multer');
 const document_db_dir = "db/documents.sqlite"
+const path = require('path')
 
 const upload = multer({ dest: 'temp/' });
 const documents = new sqlite.Database(document_db_dir, (error) => {
@@ -49,13 +50,22 @@ app.get('/upload_page', (req, res) => {
 })
 
 
-app.get('/api/get_entries', (req, res) => {
-    documents.all('SELECT documents.id, documents.name, documents.description, type.name AS type_name, documents.path AS Download FROM documents INNER JOIN type ON documents.type_id = type.id', [], (err, rows) => {
-        if (err) {
-          throw err;
-        }
-        res.send(rows);
+function get_sql_entries() {
+    return new Promise((resolve, reject) => {
+        documents.all('SELECT documents.id, documents.name, documents.description, type.name AS type_name, documents.path AS Download FROM documents INNER JOIN type ON documents.type_id = type.id', [], (err, rows) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(rows);
+        });
       });
+}
+
+
+app.get('/api/get_entries', (req, res) => {
+    get_sql_entries().then((rows) => {
+        res.send(rows)
+    })
 })
 
 
@@ -83,17 +93,17 @@ app.get('/api/download/*', (req, res) => {
 
 
 app.post('/api/drop', upload.single('tmp'), (req, res) => {
-    console.log(req.file)
-    fs.rename(req.file.path, 'temp/tmp.pdf', (err) => {
+    const fileExtension = req.body.type.split(".").pop(); // Change to simple split
+    console.log(fileExtension)
+    fs.rename(req.file.path, `temp/tmp.${fileExtension}`, (err) => {
         if (err) {
             console.log('[-] Wrong file type')
-            res.send('didnt work')
         } else {
-            console.log('File saved as PDF');
+            console.log('File saved');
         }
     });
     res.send('File uploaded!');
-})
+});
 
 
 app.use(express.json())
@@ -102,34 +112,64 @@ app.post('/api/finish_upload', (req, res) => {
     const description = req.body.description;
     const type = req.body.type;
   
-    const tempFilePath = 'temp/tmp.pdf';
-    const newFileName = `${name}-${Date.now()}.pdf`; // Make this dynamic in future
+    var extension
 
-    let type_id; 
-    documents.all(`SELECT id FROM type WHERE name = ?`, [type], (error, rows) => {
-        if (error) {
-            console.log(error)
-        } else {
-            type_id = rows
-        }
-    
 
-        const sql = `INSERT INTO documents (name, description, path, type_id) VALUES(?, ?, ?, ?)`
-        documents.run(sql, [name, description, `${newFileName}`, type_id[0].id])
-    
-        fs.rename(tempFilePath, `db/docs/${newFileName}`, (err) => {
+    fs.readdir("temp", (err, files) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send('Error moving file');
+            console.log(err)
+            return
         }
-    
-        // File moved successfully, do something with the new file path
-        const newPath = `uploads/${newFileName}`;
-        console.log(`File moved to ${newPath}`);
-        // Send response to client
-        res.send('File uploaded and moved!');
-        });
+
+        extension = path.extname(files[0]);
+
+        for (i = 1; i < files.length; i++) {
+            fs.rm(files[i]) // Just in case
+        }
+      
+        // Use extension to create new file name
+        const newFileName = `${name}-${Date.now()}${extension}`; // Make this dynamic in future
+        const temp_dir = 'temp/tmp' + extension
+
+        let type_id 
+        documents.all(`SELECT id FROM type WHERE name = ?`, [type], (error, rows) => {
+            if (error) {
+                console.log(error)
+            } else {
+                type_id = rows
+            }
+        
+
+            const sql = `INSERT INTO documents (name, description, path, type_id) VALUES(?, ?, ?, ?)`
+            documents.run(sql, [name, description, `${newFileName}`, type_id[0].id])
+        
+            fs.rename(temp_dir, `db/docs/${newFileName}`, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Error moving file');
+            }
+        
+            // File moved successfully, do something with the new file path
+            const newPath = `uploads/${newFileName}`;
+            console.log(`[*] File moved to ${newPath}`);
+            // Send response to client
+            res.send('File uploaded and moved!');
+            });
+        })
     })
+})
+
+
+app.put('/api/delete_entry', (req, res) => {
+    const id = req.body.id
+    documents.all("SELECT path FROM documents WHERE id = ?", [id], (error, rows) => {
+        fs.rm(`db/docs/${rows[0].path}`, (err) => {
+            if (err) {
+                console.log(err)
+            }
+        })
+    })
+    documents.run("DELETE FROM documents WHERE id = ?", [id])
 })
 
 

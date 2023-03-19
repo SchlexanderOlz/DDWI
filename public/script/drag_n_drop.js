@@ -42,6 +42,7 @@ function handleDrop(e) {
 
   let formData = new FormData()
   formData.append('tmp', files[0])
+  formData.append('type', files[0].name)
 
   fetch('/api/drop', {
     method: 'POST',

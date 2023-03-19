@@ -48,8 +48,19 @@ function handleDrop(e) {
     method: 'POST',
     body: formData
   })
-
-  location.href = "/upload_page"
+  .then(response => {
+    if (!response.ok) {
+      return;
+    }
+    return response.text();
+  })
+  .then(() => {
+    location.href = '/upload_page';
+  })
+  .catch(error => {
+    console.error(error);
+    return
+  });
 }
 
 setup_drag_listeners()

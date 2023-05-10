@@ -4,15 +4,31 @@ const fs = require("fs")
 const sqlite = require("sqlite3")
 const multer = require('multer');
 const document_db_dir = "db/documents.sqlite"
+const db_setup_path = "db/setup.sql"
 const path = require('path')
 
 const upload = multer({ dest: 'temp/' });
 const documents = new sqlite.Database(document_db_dir, (error) => {
-    console.log(error)
-    console.log("[-] Couldn't open Database: documents")
+    if (error) {
+        console.log(error)
+        console.log("[-] Couldn't open Database: documents")
+    } else {
+        SetupDB()
+    }
 })
 
 const port = 3900
+
+function SetupDB() {
+    const content = fs.readFileSync(db_setup_path, "utf-8")
+
+    let statements = content.split(";")
+    statements.pop()
+
+    for (let statement of statements) {
+        documents.run(statement)
+    }
+}
 
 app.use(express.static('public'))
 app.use((req, res, next) => {
